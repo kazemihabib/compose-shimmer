@@ -24,7 +24,6 @@ import com.github.kazemihabib.shimmer.RepeatMode.REVERSE
  * @param repeatMode What the animation should do after reaching the end, either restart from the beginning or reverse back towards it.
  * @param clock The animation clock observable that will drive this ripple effect
  */
-@Composable
 fun Modifier.shimmer(
     durationMs: Int = 3000,
     delay: Int = 0,
