@@ -3,23 +3,43 @@ package com.github.kazemihabib.shimmer
 import androidx.annotation.FloatRange
 import androidx.compose.ambientOf
 
+/**
+ * Defines the appearance and the behavior for [shimmer]s.
+ *
+ * You can define new theme and apply it via [ShimmerThemeAmbient].
+ */
 data class ShimmerTheme(
+    /**
+     * Defines the current [ShimmerEffect] implementation.
+     */
     val factory: ShimmerEffectFactory,
-
+    /**
+     * The alpha for unhighlighted section
+     */
     @FloatRange(from = 0.0, to = 1.0)
     val baseAlpha: Float,
-
+    /**
+     * The alpha for highlighted section
+     */
     @FloatRange(from = 0.0, to = 1.0)
     val highlightAlpha: Float,
-
+    /**
+     * The direction of [shimmer] effect
+     */
     val direction: Direction,
-
+    /**
+     * Controls the size of the fading edge of the highlight.
+     */
     @FloatRange(from = 0.0, to = 1.0)
     val dropOff: Float,
-
+    /**
+     * Controls the brightness of the highlight at the center
+     */
     @FloatRange(from = 0.0, to = 1.0)
     val intensity: Float,
-
+    /**
+     * Angle in degrees at which the [shimmer] is tilted
+     */
     val tilt: Float
 ) {
     init {
@@ -33,6 +53,9 @@ data class ShimmerTheme(
     }
 }
 
+/**
+ *  Enum class defining the direction of [shimmer] effect
+ */
 enum class Direction {
     LeftToRight,
     TopToBottom,
@@ -40,6 +63,9 @@ enum class Direction {
     BottomToTop
 }
 
+/**
+ * Ambient used for providing [ShimmerTheme] down the tree.
+ */
 val ShimmerThemeAmbient = ambientOf { defaultShimmerTheme }
 
 private val defaultShimmerTheme = ShimmerTheme(

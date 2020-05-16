@@ -11,6 +11,9 @@ import androidx.ui.graphics.*
 import androidx.ui.unit.PxSize
 import kotlin.math.tan
 
+/**
+ * Used to specify this type of [ShimmerEffect] for [shimmer].
+ */
 object DefaultLinearShimmerEffectFactory : ShimmerEffectFactory {
     override fun create(
         baseAlpha: Float,
@@ -24,7 +27,7 @@ object DefaultLinearShimmerEffectFactory : ShimmerEffectFactory {
         repeatMode: RepeatMode,
         clock: AnimationClockObservable
     ): ShimmerEffect {
-        return DefaultShimmerEffect(
+        return DefaultLinearShimmerEffect(
             baseAlpha,
             highlightAlpha,
             direction,
@@ -39,7 +42,7 @@ object DefaultLinearShimmerEffectFactory : ShimmerEffectFactory {
     }
 }
 
-private class DefaultShimmerEffect(
+private class DefaultLinearShimmerEffect(
     val baseAlpha: Float,
     val highlightAlpha: Float,
     val direction: Direction,
@@ -93,8 +96,7 @@ private class DefaultShimmerEffect(
             else if (state == ShimmerTransition.State.End)
                 if (repeatMode == RepeatMode.RESTART) {
                     animation.toState(ShimmerTransition.State.Reset)
-                }
-                else if (repeatMode == RepeatMode.REVERSE) {
+                } else if (repeatMode == RepeatMode.REVERSE) {
                     animation.toState(ShimmerTransition.State.Begin)
                 }
         }
