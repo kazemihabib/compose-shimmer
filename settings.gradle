@@ -1,0 +1,3 @@
+include ':shimmer'
+include ':app'
+rootProject.name = "compose-shimmer"
