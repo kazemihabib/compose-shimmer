@@ -1,6 +1,7 @@
 package com.github.kazemihabib.shimmer
 
-import androidx.animation.AnimationClockObservable
+import androidx.compose.animation.core.AnimationClockObservable
+
 
 interface ShimmerEffectFactory {
 
@@ -9,7 +10,7 @@ interface ShimmerEffectFactory {
 
         highlightAlpha: Float,
 
-        direction: Direction,
+        direction: ShimmerDirection,
 
         dropOff: Float,
 

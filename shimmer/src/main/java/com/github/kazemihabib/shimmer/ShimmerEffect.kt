@@ -1,14 +1,15 @@
 package com.github.kazemihabib.shimmer
 
-import androidx.ui.graphics.Canvas
-import androidx.ui.unit.PxSize
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Canvas
+
 
 
 interface ShimmerEffect {
 
-    fun draw(canvas: Canvas, size: PxSize)
+    fun draw(canvas: Canvas, size: Size)
 
-    fun updateSize(size: PxSize)
+    fun updateSize(size: Size)
 
 }
 

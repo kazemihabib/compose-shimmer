@@ -18,7 +18,7 @@ object DefaultLinearShimmerEffectFactory : ShimmerEffectFactory {
     override fun create(
         baseAlpha: Float,
         highlightAlpha: Float,
-        direction: Direction,
+        direction: ShimmerDirection,
         dropOff: Float,
         intensity: Float,
         tilt: Float,
@@ -45,7 +45,7 @@ object DefaultLinearShimmerEffectFactory : ShimmerEffectFactory {
 private class DefaultLinearShimmerEffect(
     val baseAlpha: Float,
     val highlightAlpha: Float,
-    val direction: Direction,
+    val direction: ShimmerDirection,
     val dropOff: Float,
     val intensity: Float,
     val tilt: Float,
@@ -62,10 +62,10 @@ private class DefaultLinearShimmerEffect(
     private var translateWidth = 0f
     private val tiltTan = tan(Math.toRadians(tilt.toDouble())).toFloat()
     private val shaderColors = listOf(
-        Color.Unset.copy(alpha = baseAlpha),
-        Color.Unset.copy(alpha = highlightAlpha),
-        Color.Unset.copy(alpha = highlightAlpha),
-        Color.Unset.copy(alpha = baseAlpha)
+        Color.Unspecified.copy(alpha = baseAlpha),
+        Color.Unspecified.copy(alpha = highlightAlpha),
+        Color.Unspecified.copy(alpha = highlightAlpha),
+        Color.Unspecified.copy(alpha = baseAlpha)
     )
 
     private val colorStops: List<Float> = listOf(
@@ -77,8 +77,8 @@ private class DefaultLinearShimmerEffect(
 
     private val paint = Paint().apply {
         isAntiAlias = true
-        style = PaintingStyle.fill
-        blendMode = BlendMode.dstIn
+        style = PaintingStyle.Fill
+        blendMode = BlendMode.DstIn
     }
 
     init {
@@ -103,54 +103,54 @@ private class DefaultLinearShimmerEffect(
         animation.toState(ShimmerTransition.State.End)
     }
 
-    override fun draw(canvas: Canvas, size: PxSize) {
+    override fun draw(canvas: Canvas, size: Size) {
         animationPulse // model read so we will be redrawn with the next animation values
 
         val progress = animation[ShimmerTransition.progress]
 
         val (dx, dy) = when (direction) {
-            Direction.LeftToRight -> Pair(
+            ShimmerDirection.LeftToRight -> Pair(
                 offset(-translateWidth, translateWidth, progress),
                 0f
             )
-            Direction.RightToLeft -> Pair(
+            ShimmerDirection.RightToLeft -> Pair(
                 offset(translateWidth, -translateWidth, progress),
                 0f
             )
 
-            Direction.TopToBottom -> Pair(
+            ShimmerDirection.TopToBottom -> Pair(
                 0f,
                 offset(-translateHeight, translateHeight, progress)
             )
 
 
-            Direction.BottomToTop -> Pair(
+            ShimmerDirection.BottomToTop -> Pair(
                 0f,
                 offset(translateHeight, -translateHeight, progress)
             )
 
         }
-        paint.shader?.nativeShader?.transform {
+        paint.shader?.transform {
             reset()
-            postRotate(tilt, size.width.value / 2f, size.height.value / 2f)
+            postRotate(tilt, size.width / 2f, size.height / 2f)
             postTranslate(dx, dy)
         }
 
         canvas.drawRect(
-            rect = Rect(0f, 0f, size.width.value, size.height.value),
+            rect = Rect(0f, 0f, size.width, size.height),
             paint = paint
         )
     }
 
 
-    override fun updateSize(size: PxSize) {
-        translateHeight = size.height.value + tiltTan * size.width.value
-        translateWidth = size.width.value + tiltTan * size.height.value
+    override fun updateSize(size: Size) {
+        translateHeight = size.height + tiltTan * size.width
+        translateWidth = size.width + tiltTan * size.height
 
 
         val toOffset = when (direction) {
-            Direction.RightToLeft, Direction.LeftToRight -> Offset(size.width.value, 0f)
-            else -> Offset(0f, size.height.value)
+            ShimmerDirection.RightToLeft, ShimmerDirection.LeftToRight -> Offset(size.width, 0f)
+            else -> Offset(0f, size.height)
         }
 
         paint.shader = LinearGradientShader(
@@ -183,7 +183,7 @@ private object ShimmerTransition {
     fun definition(
         durationMs: Int,
         delay: Int
-    ) = transitionDefinition {
+    ) = transitionDefinition<ShimmerTransition.State> {
 
         state(State.Begin) {
             this[progress] = 0f
@@ -200,17 +200,11 @@ private object ShimmerTransition {
         snapTransition(State.End to State.Reset, nextState = State.Begin)
 
         transition(fromState = State.Begin, toState = State.End) {
-            progress using tween<Float> {
-                duration = durationMs
-                this.delay = delay
-            }
+            progress using tween<Float>(durationMs, delay)
         }
 
         transition(fromState = State.End, toState = State.Begin) {
-            progress using tween<Float> {
-                duration = durationMs
-                this.delay = delay
-            }
+            progress using tween<Float>(durationMs, delay)
 
         }
 

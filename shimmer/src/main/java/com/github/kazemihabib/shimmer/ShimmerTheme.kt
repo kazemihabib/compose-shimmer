@@ -1,7 +1,7 @@
 package com.github.kazemihabib.shimmer
 
 import androidx.annotation.FloatRange
-import androidx.compose.ambientOf
+import androidx.compose.runtime.ambientOf
 
 /**
  * Defines the appearance and the behavior for [shimmer]s.
@@ -26,7 +26,7 @@ data class ShimmerTheme(
     /**
      * The direction of [shimmer] effect
      */
-    val direction: Direction,
+    val direction: ShimmerDirection,
     /**
      * Controls the size of the fading edge of the highlight.
      */
@@ -54,25 +54,15 @@ data class ShimmerTheme(
 }
 
 /**
- *  Enum class defining the direction of [shimmer] effect
+ * Ambient used for providing [ShimmerThemeProvider] down the tree.
  */
-enum class Direction {
-    LeftToRight,
-    TopToBottom,
-    RightToLeft,
-    BottomToTop
-}
-
-/**
- * Ambient used for providing [ShimmerTheme] down the tree.
- */
-val ShimmerThemeAmbient = ambientOf { defaultShimmerTheme }
+val ShimmerThemeProvider = ambientOf { defaultShimmerTheme }
 
 private val defaultShimmerTheme = ShimmerTheme(
     factory = DefaultLinearShimmerEffectFactory,
     baseAlpha = 0.2f,
     highlightAlpha = 0.9f,
-    direction = Direction.TopToBottom,
+    direction = ShimmerDirection.TopToBottom,
     dropOff = 0.5f,
     intensity = 0f,
     tilt = 0f
