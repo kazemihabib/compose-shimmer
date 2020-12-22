@@ -9,7 +9,7 @@ A Jetpack compose modifier to add a shimmering effect to any widget.
     MyComponent( modifier = Modifier.shimmer() )
     
     
-##### Compatible with Compose version **0.1.0-dev11**
+##### Compatible with Compose version **1.0.0-alpha09**
 
 ## Download
 
@@ -28,6 +28,6 @@ allprojects {
 Add the dependency:
 ```groovy
 dependencies {
-    implementation 'com.github.kazemihabib:compose-shimmer:1.0.1'
+    implementation 'com.github.kazemihabib:compose-shimmer:1.0.2'
 }
 ```

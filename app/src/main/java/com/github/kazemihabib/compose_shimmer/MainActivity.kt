@@ -1,6 +1,7 @@
 package com.github.kazemihabib.compose_shimmer
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.background
@@ -17,26 +18,27 @@ import androidx.compose.ui.unit.dp
 import com.github.kazemihabib.shimmer.*
 
 
-data class ShimmerModel(
+class ShimmerModel {
 
-    var durationMs: Int = 3000,
+    var durationMs: Int by mutableStateOf(3000)
 
-    var delay: Int = 0,
+    var delay: Int by mutableStateOf(0)
 
-    var baseAlpha: Float = 0.3f,
+    var baseAlpha: Float by mutableStateOf(0.3f)
 
-    var highlightAlpha: Float = 0.9f,
+    var highlightAlpha: Float by mutableStateOf(0.9f)
 
-    var direction: ShimmerDirection = ShimmerDirection.LeftToRight,
+    var direction: ShimmerDirection by mutableStateOf(ShimmerDirection.LeftToRight)
 
-    var dropOff: Float = 0.5f,
+    var dropOff: Float by mutableStateOf(0.5f)
 
-    var intensity: Float = 0f,
+    var intensity: Float by mutableStateOf(0f)
 
-    var tilt: Float = 20f,
+    var tilt: Float by mutableStateOf(20f)
 
-    var repeatMode: RepeatMode = com.github.kazemihabib.shimmer.RepeatMode.RESTART
-)
+    var repeatMode: RepeatMode by mutableStateOf(RepeatMode.RESTART)
+
+}
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -116,9 +118,13 @@ private fun RadioGroup(
     selectedOption: String?,
     onSelectedChange: (String) -> Unit
 ) {
-    Row {
+    Column {
         options.forEach {
-            RadioButton(selected = selectedOption == it, onClick = { onSelectedChange(it) })
+            Row {
+                Text(text = it)
+                Spacer(modifier = Modifier.width(8.dp))
+                RadioButton(selected = selectedOption == it, onClick = { onSelectedChange(it) })
+            }
         }
     }
 }
@@ -168,6 +174,8 @@ fun ImagePlaceHolder() {
 private fun Config(model: ShimmerModel) {
 
     val repeatModes = mapOf(RepeatMode.RESTART to "Restart", RepeatMode.REVERSE to "Reverse")
+
+    Log.d("MOVL", "model:$model")
     LabelRadio(
         label = "repeat",
         map = repeatModes,
@@ -175,8 +183,10 @@ private fun Config(model: ShimmerModel) {
         onSelectedChange = model::repeatMode::set
     )
     val directions = mapOf<ShimmerDirection, String>(
-        ShimmerDirection.LeftToRight to "left to right", ShimmerDirection.RightToLeft to "right to left",
-        ShimmerDirection.TopToBottom to "top to bottom", ShimmerDirection.BottomToTop to "bottom to top"
+        ShimmerDirection.LeftToRight to "left to right",
+        ShimmerDirection.RightToLeft to "right to left",
+        ShimmerDirection.TopToBottom to "top to bottom",
+        ShimmerDirection.BottomToTop to "bottom to top"
     )
 
     LabelRadio(

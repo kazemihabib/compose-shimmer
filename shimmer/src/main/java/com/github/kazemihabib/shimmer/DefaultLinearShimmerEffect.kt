@@ -55,7 +55,10 @@ private class DefaultLinearShimmerEffect(
     clock: AnimationClockObservable
 ) : ShimmerEffect {
 
-    private val animation: TransitionAnimation<ShimmerTransition.State>
+    private val animation = ShimmerTransition.definition(
+        durationMs = durationMs,
+        delay = delay
+    ).createAnimation(clock)
     private var animationPulse by mutableStateOf(0L)
 
     private var translateHeight = 0f
@@ -82,10 +85,6 @@ private class DefaultLinearShimmerEffect(
     }
 
     init {
-        animation = ShimmerTransition.definition(
-            durationMs = durationMs,
-            delay = delay
-        ).createAnimation(clock)
 
         animation.onUpdate = {
             animationPulse++
