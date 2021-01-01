@@ -1,48 +1,44 @@
 package com.github.kazemihabib.compose_shimmer
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.Composable
-import androidx.compose.Model
-import androidx.compose.Providers
-import androidx.compose.remember
-import androidx.ui.core.Modifier
-import androidx.ui.core.setContent
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.VerticalScroller
-import androidx.ui.foundation.drawBackground
-import androidx.ui.graphics.Color
-import androidx.ui.layout.*
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.RadioGroup
-import androidx.ui.material.Slider
-import androidx.ui.material.ripple.ripple
-import androidx.ui.unit.dp
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.RadioButton
+import androidx.compose.material.Slider
+import androidx.compose.material.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.unit.dp
 import com.github.kazemihabib.shimmer.*
-import com.github.kazemihabib.shimmer.Direction
 
-@Model
-data class ShimmerModel(
 
-    var durationMs: Int = 3000,
+class ShimmerModel {
 
-    var delay: Int = 0,
+    var durationMs: Int by mutableStateOf(3000)
 
-    var baseAlpha: Float = 0.3f,
+    var delay: Int by mutableStateOf(0)
 
-    var highlightAlpha: Float = 0.9f,
+    var baseAlpha: Float by mutableStateOf(0.3f)
 
-    var direction: Direction = Direction.LeftToRight,
+    var highlightAlpha: Float by mutableStateOf(0.9f)
 
-    var dropOff: Float = 0.5f,
+    var direction: ShimmerDirection by mutableStateOf(ShimmerDirection.LeftToRight)
 
-    var intensity: Float = 0f,
+    var dropOff: Float by mutableStateOf(0.5f)
 
-    var tilt: Float = 20f,
+    var intensity: Float by mutableStateOf(0f)
 
-    var repeatMode: RepeatMode = com.github.kazemihabib.shimmer.RepeatMode.RESTART
-)
+    var tilt: Float by mutableStateOf(20f)
+
+    var repeatMode: RepeatMode by mutableStateOf(RepeatMode.RESTART)
+
+}
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,9 +53,9 @@ class MainActivity : AppCompatActivity() {
 @Composable
 fun App() {
     MaterialTheme {
-        val model = remember { ShimmerModel() }
+        val model by remember { mutableStateOf(ShimmerModel()) }
         Providers(
-            ShimmerThemeAmbient provides ShimmerTheme(
+            ShimmerThemeProvider provides ShimmerTheme(
                 factory = DefaultLinearShimmerEffectFactory,
                 baseAlpha = model.baseAlpha,
                 highlightAlpha = model.highlightAlpha,
@@ -69,21 +65,19 @@ fun App() {
                 tilt = model.tilt
             )
         ) {
-            VerticalScroller {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    ShimmerSample(
-                        modifier = Modifier.shimmer(
-                            durationMs = model.durationMs,
-                            delay = model.delay,
-                            repeatMode = model.repeatMode
-                        )
+            ScrollableColumn(modifier = Modifier.padding(20.dp)) {
+                ShimmerSample(
+                    modifier = Modifier.shimmer(
+                        durationMs = model.durationMs,
+                        delay = model.delay,
+                        repeatMode = model.repeatMode
                     )
-                    Config(model)
-                }
+                )
+                Config(model)
             }
         }
-
     }
+
 }
 
 
@@ -118,6 +112,23 @@ private fun <K> LabelRadio(
     }
 }
 
+@Composable
+private fun RadioGroup(
+    options: List<String>,
+    selectedOption: String?,
+    onSelectedChange: (String) -> Unit
+) {
+    Column {
+        options.forEach {
+            Row {
+                Text(text = it)
+                Spacer(modifier = Modifier.width(8.dp))
+                RadioButton(selected = selectedOption == it, onClick = { onSelectedChange(it) })
+            }
+        }
+    }
+}
+
 
 @Composable
 fun ShimmerSample(modifier: Modifier = Modifier) {
@@ -125,7 +136,7 @@ fun ShimmerSample(modifier: Modifier = Modifier) {
         repeat(3) {
             PlaceHolder()
             Spacer(modifier = Modifier.height(20.dp))
-            Modifier.ripple()
+
         }
     }
 }
@@ -149,13 +160,13 @@ fun PlaceHolder(modifier: Modifier = Modifier) {
 fun LinePlaceHolder(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.fillMaxWidth().preferredHeight(20.dp)
-            .drawBackground(color = Color.LightGray)
+            .background(color = Color.LightGray)
     )
 }
 
 @Composable
 fun ImagePlaceHolder() {
-    Box(modifier = Modifier.size(110.dp).drawBackground(color = Color.LightGray))
+    Box(modifier = Modifier.size(110.dp).background(color = Color.LightGray))
 }
 
 
@@ -163,15 +174,19 @@ fun ImagePlaceHolder() {
 private fun Config(model: ShimmerModel) {
 
     val repeatModes = mapOf(RepeatMode.RESTART to "Restart", RepeatMode.REVERSE to "Reverse")
+
+    Log.d("MOVL", "model:$model")
     LabelRadio(
         label = "repeat",
         map = repeatModes,
         selectedKey = model.repeatMode,
         onSelectedChange = model::repeatMode::set
     )
-    val directions = mapOf(
-        Direction.LeftToRight to "left to right", Direction.RightToLeft to "right to left",
-        Direction.TopToBottom to "top to bottom", Direction.BottomToTop to "bottom to top"
+    val directions = mapOf<ShimmerDirection, String>(
+        ShimmerDirection.LeftToRight to "left to right",
+        ShimmerDirection.RightToLeft to "right to left",
+        ShimmerDirection.TopToBottom to "top to bottom",
+        ShimmerDirection.BottomToTop to "bottom to top"
     )
 
     LabelRadio(
@@ -180,7 +195,6 @@ private fun Config(model: ShimmerModel) {
         selectedKey = model.direction,
         onSelectedChange = model::direction::set
     )
-
     LabelSlider(
         label = "base alpha",
         value = model.baseAlpha,

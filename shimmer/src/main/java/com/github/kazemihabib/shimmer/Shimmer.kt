@@ -1,16 +1,24 @@
 package com.github.kazemihabib.shimmer
 
-import androidx.animation.AnimationClockObservable
-import androidx.compose.Composable
-import androidx.compose.remember
-import androidx.ui.animation.asDisposableClock
-import androidx.ui.core.*
-import androidx.ui.geometry.Rect
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.painter.drawCanvas
-import androidx.ui.graphics.withSaveLayer
-import androidx.ui.unit.PxSize
-import androidx.ui.unit.ipx
+import androidx.compose.animation.asDisposableClock
+import androidx.compose.animation.core.AnimationClockObservable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.draw.DrawModifier
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.withSaveLayer
+import androidx.compose.ui.layout.LayoutModifier
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.platform.AnimationClockAmbient
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
 import com.github.kazemihabib.shimmer.RepeatMode.RESTART
 import com.github.kazemihabib.shimmer.RepeatMode.REVERSE
 
@@ -32,7 +40,7 @@ fun Modifier.shimmer(
 ): Modifier = composed {
     @Suppress("NAME_SHADOWING") // don't allow usage of the parameter clock, only the disposable
     val clock = (clock ?: AnimationClockAmbient.current).asDisposableClock()
-    val theme = ShimmerThemeAmbient.current
+    val theme = ShimmerThemeProvider.current
 
     val shimmerModifier =
         remember(theme, delay, durationMs, repeatMode, clock) { //TODO("Decrease the reallocation")
@@ -56,7 +64,7 @@ internal class ShimmerModifier(
     clock: AnimationClockObservable
 ) : DrawModifier, LayoutModifier {
 
-    private var size: PxSize = PxSize(0.ipx, 0.ipx)
+    private var size = Size(0f, 0f)
     private val paint = Paint()
     private val factory: ShimmerEffect = shimmerTheme.run {
         factory.create(
@@ -74,13 +82,13 @@ internal class ShimmerModifier(
     }
 
     override fun ContentDrawScope.draw() {
-        drawCanvas { canvas, _ ->
+        drawIntoCanvas { canvas ->
             canvas.withSaveLayer(
                 Rect(
                     0f,
                     0f,
-                    this@ShimmerModifier.size.width.value,
-                    this@ShimmerModifier.size.height.value
+                    this@ShimmerModifier.size.width,
+                    this@ShimmerModifier.size.height
                 ), paint
             ) {
                 drawContent()
@@ -92,16 +100,16 @@ internal class ShimmerModifier(
         }
     }
 
+
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
-    ): MeasureScope.MeasureResult {
+        constraints: Constraints
+    ): MeasureResult {
         val placeable = measurable.measure(constraints)
-        size = PxSize(width = placeable.width, height = placeable.height)
+        size = Size(width = placeable.width.toFloat(), height = placeable.height.toFloat())
         factory.updateSize(size)
         return layout(placeable.width, placeable.height) {
-            placeable.place(0.ipx, 0.ipx)
+            placeable.place(0, 0)
         }
     }
 }
