@@ -28,6 +28,6 @@ allprojects {
 Add the dependency:
 ```groovy
 dependencies {
-    implementation 'com.github.kazemihabib:compose-shimmer:1.0.2'
+    implementation 'com.github.kazemihabib:compose-shimmer:1.0.1'
 }
 ```
